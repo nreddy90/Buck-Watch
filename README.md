@@ -1,5 +1,13 @@
 # Buck Watch
 
+## Cost-of-living reference data
+
+The first researched dataset contains HUD FY2027 one-bedroom gross housing
+benchmarks for Atlanta, New York City, San Francisco, Athens, Lancaster, and
+Gainesville. See [data/README.md](data/README.md) for CSV locations, source
+definitions, validation, and reproduction instructions. Other expense
+categories are still pending research.
+
 Hackathon personal-finance website prototype. Plain HTML, CSS, and JavaScript; no dependencies or build step.
 
 ## Run locally

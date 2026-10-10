@@ -1,0 +1,12 @@
+city,location_id,stusps,state,hud_area_code,countyname,county_town_name,metro,hud_area_name,fips,pop2024,fmr_0,fmr_1,fmr_2,fmr_3,fmr_4
+Atlanta,atlanta-ga,GA,13,METRO12060M12060,DeKalb County,,1,"Atlanta-Sandy Springs-Roswell, GA HUD Metro FMR Area",1308999999,765351,1554,1619,1762,2099,2493
+Atlanta,atlanta-ga,GA,13,METRO12060M12060,Fulton County,,1,"Atlanta-Sandy Springs-Roswell, GA HUD Metro FMR Area",1312199999,1076561,1554,1619,1762,2099,2493
+New York City,new-york-city-ny,NY,36,METRO35620MM5600,Bronx County,,1,"New York, NY HUD Metro FMR Area",3600599999,1404779,2593,2729,2971,3760,4121
+New York City,new-york-city-ny,NY,36,METRO35620MM5600,Kings County,,1,"New York, NY HUD Metro FMR Area",3604799999,2631580,2593,2729,2971,3760,4121
+New York City,new-york-city-ny,NY,36,METRO35620MM5600,New York County,,1,"New York, NY HUD Metro FMR Area",3606199999,1629477,2593,2729,2971,3760,4121
+New York City,new-york-city-ny,NY,36,METRO35620MM5600,Queens County,,1,"New York, NY HUD Metro FMR Area",3608199999,2323052,2593,2729,2971,3760,4121
+New York City,new-york-city-ny,NY,36,METRO35620MM5600,Richmond County,,1,"New York, NY HUD Metro FMR Area",3608599999,494956,2593,2729,2971,3760,4121
+San Francisco,san-francisco-ca,CA,06,METRO41860MM7360,San Francisco County,,1,"San Francisco, CA HUD Metro FMR Area",0607599999,830235,2574,3003,3697,4832,5439
+Athens,athens-ga,GA,13,METRO12020M12020,Clarke County,,1,"Athens-Clarke County, GA MSA",1305999999,129609,1097,1103,1285,1610,1689
+Lancaster,lancaster-pa,PA,42,METRO29540M29540,Lancaster County,,1,"Lancaster, PA MSA",4207199999,557931,1152,1256,1553,1978,2041
+Gainesville,gainesville-fl,FL,12,METRO23540M23540,Alachua County,,1,"Gainesville, FL HUD Metro FMR Area",1200199999,285492,1197,1241,1471,1806,1933
