@@ -1,0 +1,84 @@
+{
+  "source_url": "https://www.huduser.gov/portal/datasets/fmr/fmr2027/FY27_FMRs.xlsx",
+  "retrieved_on": "2026-10-10",
+  "source_file": "FY27_FMRs.xlsx",
+  "sha256": "423d1c6f8ef285a0fec63526768245396ec6fca0c9a086f21f709cc0ac89d1b7",
+  "source_sheet": "FY27_FMRs",
+  "source_rows": 4764,
+  "source_fields": [
+    "stusps",
+    "state",
+    "hud_area_code",
+    "countyname",
+    "county_town_name",
+    "metro",
+    "hud_area_name",
+    "fips",
+    "pop2024",
+    "fmr_0",
+    "fmr_1",
+    "fmr_2",
+    "fmr_3",
+    "fmr_4"
+  ],
+  "field_descriptions": [
+    {
+      "Field_Name": "stusps",
+      "Description": "State Postal Code"
+    },
+    {
+      "Field_Name": "state",
+      "Description": "2 Digit State FIPS Code"
+    },
+    {
+      "Field_Name": "hud_area_code",
+      "Description": "HUD Specific Area Code"
+    },
+    {
+      "Field_Name": "County_Name",
+      "Description": "County Name"
+    },
+    {
+      "Field_Name": "county_town_name",
+      "Description": "Town Name for areas in New England (Connecticut, Maine, Massachusetts, New Hampshire, Rhode Island, Vermont)- Otherwise, County Name"
+    },
+    {
+      "Field_Name": "metro",
+      "Description": "1 if area is in a Metropolitan Statistical Area- 0 if not"
+    },
+    {
+      "Field_Name": "HUD_Area_Name",
+      "Description": "HUD Area Name"
+    },
+    {
+      "Field_Name": "fips",
+      "Description": "Concatenated 2 Digit State FIPS Code, 3 Digit County FIPS Code, and 5 Digit County Subdivision FIPS Code"
+    },
+    {
+      "Field_Name": "pop2024",
+      "Description": "Population in 2024"
+    },
+    {
+      "Field_Name": "fmr_0",
+      "Description": "FY 2027 0-Bedroom Fair Market Rent"
+    },
+    {
+      "Field_Name": "fmr_1",
+      "Description": "FY 2027 1-Bedroom Fair Market Rent"
+    },
+    {
+      "Field_Name": "fmr_2",
+      "Description": "FY 2027 2-Bedroom Fair Market Rent"
+    },
+    {
+      "Field_Name": "fmr_3",
+      "Description": "FY 2027 3-Bedroom Fair Market Rent"
+    },
+    {
+      "Field_Name": "fmr_4",
+      "Description": "FY 2027 4-Bedroom Fair Market Rent"
+    }
+  ],
+  "matched_rows": 11,
+  "city_rows": 6
+}
