@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS finance_events (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    amount NUMERIC(19,4) NOT NULL,
+    category VARCHAR(255) NOT NULL,
+    occurred_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

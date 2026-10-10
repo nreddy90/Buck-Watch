@@ -1,0 +1,30 @@
+# Environment
+.env
+.env.*
+!.env.example
+
+# Node / frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.vite/
+
+# Java / backend
+backend/target/
+backend/.mvn/wrapper/*.jar
+
+# Python / ML service
+ml-service/.venv/
+ml-service/venv/
+ml-service/**/__pycache__/
+ml-service/**/*.pyc
+ml-service/**/*.pyo
+
+# Editor / OS
+.DS_Store
+.vscode/
+
+# Build outputs
+build/
+dist/
