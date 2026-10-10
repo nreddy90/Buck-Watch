@@ -1,4 +1,10 @@
-# Buck Watch source research
+# Buck Watch earlier HUD housing research
+
+This document preserves the earlier six-city housing research. The active
+dataset now uses all cities in the user-provided Kaggle cost-of-living index
+CSV; see [README.md](README.md). Do not treat the HUD CSVs below as the active
+dataset or combine their rent figures with the new indexes as if both were
+money amounts.
 
 Research and retrieval date: 2026-10-10. Dataset 1: housing collected and exported.
 

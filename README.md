@@ -2,11 +2,12 @@
 
 ## Cost-of-living reference data
 
-The first researched dataset contains HUD FY2027 one-bedroom gross housing
-benchmarks for Atlanta, New York City, San Francisco, Athens, Lancaster, and
-Gainesville. See [data/README.md](data/README.md) for CSV locations, source
-definitions, validation, and reproduction instructions. Other expense
-categories are still pending research.
+The current dataset preserves all 536 worldwide cities in the supplied Kaggle
+cost-of-living CSV. Use `data/processed/city_costs.csv` for price indexes relative
+to New York City = 100. These support city comparisons and estimates based on a
+user's existing spending; the values are indexes, not monthly dollar budgets.
+See [data/README.md](data/README.md) for definitions, provenance, validation,
+and usage examples. The original uploaded CSV is preserved under `data/raw/`.
 
 Hackathon personal-finance website prototype. Plain HTML, CSS, and JavaScript; no dependencies or build step.
 
