@@ -2,16 +2,13 @@
 
 Buck Watch includes a React/Vite dashboard and Spring Boot moving-city scenario API. The original static prototype and Python ML service remain in the repository; this feature uses deterministic Java calculations and does not train or call an ML model.
 
-<<<<<<< HEAD
 ## Dataset
-=======
 The current dataset preserves all 536 worldwide cities in the supplied Kaggle
 cost-of-living CSV. Use `data/processed/city_costs.csv` for price indexes relative
 to New York City = 100. These support city comparisons and estimates based on a
 user's existing spending; the values are indexes, not monthly dollar budgets.
 See [data/README.md](data/README.md) for definitions, provenance, validation,
 and usage examples. The original uploaded CSV is preserved under `data/raw/`.
->>>>>>> 2395a89e5a2b869db0195bd986eb7cf20117b29d
 
 The city index CSV is packaged at `backend/src/main/resources/data/Cost_of_living_index.csv`. Its repository copy is `data/Cost_of_living_index.csv`. The loader uses Apache Commons CSV to handle quoted names containing commas, loads once at startup, and rejects blank, duplicate, malformed, or non-positive numeric index records. If the dataset is missing, place the supplied file at `backend/src/main/resources/data/Cost_of_living_index.csv`.
 
