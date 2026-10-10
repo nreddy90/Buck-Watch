@@ -1,20 +1,4 @@
-export interface HealthStatus {
-  status: string
-  service: string
-}
-
-const API_BASE = '/api'
-
-async function request<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`)
-
-  if (!response.ok) {
-    throw new Error(`Request failed: ${response.status} ${response.statusText}`)
-  }
-
-  return response.json() as Promise<T>
-}
-
-export const api = {
-  getHealth: () => request<HealthStatus>('/health'),
-}
+export interface Budget { currentCity: string; currency: string; monthlyIncome: number; rent: number; groceries: number; restaurants: number; otherLocationSensitive: number; fixedExpenses: number; availableBalance: number; balanceDate: string }
+export interface ScenarioResults { originCity: string; destinationCity: string; moveMonth: string; horizonMonths: number; currentExpenses: Record<string, number>; destinationExpenses: Record<string, number>; baselineMonthlySurplus: number; scenarioMonthlySurplus: number; monthlySurplusDifference: number; finalBaselineBalance: number; finalScenarioBalance: number; finalBalanceDifference: number; lowestProjectedScenarioBalance: number; firstNegativeMonth: string; months: {month:string;baselineBalance:number;scenarioBalance:number;movingCosts:number}[]; methods:Record<string,string>; assumptions:string[]; warnings:string[] }
+async function request<T>(path:string, init?:RequestInit):Promise<T>{ const response=await fetch(`/api${path}`,{...init,headers:{'Content-Type':'application/json',...init?.headers}}); const body=await response.json(); if(!response.ok) throw new Error(body?.error?.message??`Request failed: ${response.status}`); return body as T }
+export const api={ profile:()=>request<{profile:Budget;profileType:string}>('/profile'), cities:(query:string)=>request<{cities:string[]}>(`/cities?query=${encodeURIComponent(query)}`), move:(payload:unknown)=>request<{results:ScenarioResults}>('/scenarios/move',{method:'POST',body:JSON.stringify(payload)}), chat:(question:string)=>request<Record<string,unknown>>('/chat/scenario',{method:'POST',body:JSON.stringify({question,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone})}) }

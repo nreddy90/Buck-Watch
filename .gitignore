@@ -12,6 +12,7 @@ frontend/.vite/
 
 # Java / backend
 backend/target/
+backend/.m2/
 backend/.mvn/wrapper/*.jar
 
 # Python / ML service

@@ -1,65 +1,34 @@
-import { useEffect, useState } from 'react'
-import { api, type HealthStatus } from './api'
+import { useEffect, useRef, useState } from 'react'
+import { api, type Budget, type ScenarioResults } from './api'
 import './App.css'
 
+const month = new Date().toISOString().slice(0, 7)
+const money=(n:number)=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n)
+
 function App() {
-  const [health, setHealth] = useState<HealthStatus | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    const loadHealth = async () => {
-      try {
-        const status = await api.getHealth()
-        setHealth(status)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unable to reach backend')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    void loadHealth()
-  }, [])
-
-  return (
-    <main className="page-shell">
-      <section className="hero-card">
-        <p className="eyebrow">Buck Watch</p>
-        <h1>Personal finance, planned with clarity.</h1>
-        <p className="lede">
-          This is the startup shell for a financial dashboard that will analyze spending,
-          forecast cash flow, and model financial decisions.
-        </p>
-
-        <div className="status-panel" aria-live="polite">
-          <h2>Backend health</h2>
-          {loading && <p>Checking backend status…</p>}
-          {!loading && error && <p className="status-error">{error}</p>}
-          {!loading && health && (
-            <p className="status-ok">
-              {health.status} • {health.service}
-            </p>
-          )}
-        </div>
-      </section>
-
-      <section className="feature-grid">
-        <article>
-          <h3>Spending insights</h3>
-          <p>Review transaction patterns and identify cash flow trends.</p>
-        </article>
-        <article>
-          <h3>Forecasting</h3>
-          <p>Model monthly balances and future obligations before they happen.</p>
-        </article>
-        <article>
-          <h3>Decision simulation</h3>
-          <p>Compare scenarios for rent, savings, and large purchases.</p>
-        </article>
-      </section>
-    </main>
-  )
+  const [budget,setBudget]=useState<Budget|null>(null),[city,setCity]=useState(''),[cities,setCities]=useState<string[]>([]),[moveMonth,setMoveMonth]=useState(month),[horizon,setHorizon]=useState(12),[moving,setMoving]=useState(''),[rent,setRent]=useState(''),[income,setIncome]=useState(''),[question,setQuestion]=useState(''),[pendingQuestion,setPendingQuestion]=useState(''),[results,setResults]=useState<ScenarioResults|null>(null),[explanation,setExplanation]=useState(''),[clarification,setClarification]=useState(''),[error,setError]=useState(''),[loading,setLoading]=useState(false)
+  const requestId=useRef(0)
+  const retryAction=useRef<()=>void>(()=>{})
+  useEffect(()=>{api.profile().then(x=>setBudget(x.profile)).catch(e=>setError(e.message))},[])
+  useEffect(()=>{let active=true;if(city.trim()) api.cities(city).then(x=>{if(active)setCities(x.cities)}).catch(()=>{});else setCities([]);return()=>{active=false}},[city])
+  async function run(){retryAction.current=()=>void run();const id=++requestId.current;setLoading(true);setError('');setClarification('');try{const r=await api.move({destinationCity:city,moveMonth,horizonMonths:horizon,movingCosts:moving===''?null:Number(moving),destinationRent:rent===''?null:Number(rent),newMonthlyIncome:income===''?null:Number(income),currency:'USD'});if(id===requestId.current){setResults(r.results);setExplanation('')}}catch(e){if(id===requestId.current)setError(e instanceof Error?e.message:'Unable to calculate scenario')}finally{if(id===requestId.current)setLoading(false)}}
+  async function ask(){retryAction.current=()=>void ask();const id=++requestId.current;setLoading(true);setError('');setClarification('');const fullQuestion=pendingQuestion?`${pendingQuestion}\nClarification supplied by user: ${question}`:question;try{const r=await api.chat(fullQuestion);if(id!==requestId.current)return;if(r.status==='clarification_required'){setPendingQuestion(fullQuestion);setClarification(String(r.clarificationQuestion));setQuestion('');return}if(r.status==='completed'){setResults(r.results as ScenarioResults);setExplanation(String(r.explanation??''));setPendingQuestion('');if(r.results){const data=r.results as ScenarioResults;setCity(data.destinationCity);setMoveMonth(data.moveMonth)}}else if(r.status==='unsupported_scenario'){setError(String(r.message));setPendingQuestion('')}}catch(e){if(id===requestId.current)setError(e instanceof Error?e.message:'Unable to interpret question')}finally{if(id===requestId.current)setLoading(false)}}
+  const expenses=results?Object.entries(results.destinationExpenses):[]
+  return <main className="app-shell"><header className="topline"><div className="brand"><span className="brand-mark">B</span><span>BUCK WATCH</span></div><span className="demo-tag">LOCAL DEMO PROFILE</span></header>
+    <section className="intro"><p className="eyebrow">PLAN A MOVE</p><h1>Make the next city<br/><em>part of the plan.</em></h1><p>Compare an estimated monthly budget and cash balance before you move.</p></section>
+    {budget&&<section className="profile-strip"><div><span>Current location</span><strong>{budget.currentCity}</strong></div><div><span>Take-home income</span><strong>{money(budget.monthlyIncome)} / month</strong></div><div><span>Available balance</span><strong>{money(budget.availableBalance)} <small>as of {budget.balanceDate}</small></strong></div></section>}
+    <section className="workspace"><form className="panel scenario-form" onSubmit={e=>{e.preventDefault();void run()}}><div className="panel-heading"><div><p className="eyebrow">SCENARIO BUILDER</p><h2>Moving cities</h2></div><span className="step">01 / 02</span></div>
+      <label>Destination city<input value={city} onChange={e=>setCity(e.target.value)} placeholder="Search city and state" list="city-options" required/><datalist id="city-options">{cities.map(c=><option key={c} value={c}/>)}</datalist><small>Choose the full name shown in the dataset.</small></label>
+      <div className="form-row"><label>Move month<input type="month" value={moveMonth} onChange={e=>setMoveMonth(e.target.value)} required/></label><label>Forecast horizon<select value={horizon} onChange={e=>setHorizon(Number(e.target.value))}>{[3,6,9,12,18,24].map(x=><option key={x} value={x}>{x} months</option>)}</select></label></div>
+      <label>One-time moving costs<input type="number" min="0" step="0.01" value={moving} onChange={e=>setMoving(e.target.value)} placeholder="Enter amount or leave excluded"/><small>Blank excludes the cost. Enter 0 to confirm no moving costs.</small></label>
+      <details><summary>Optional budget changes</summary><label>New monthly take-home income<input type="number" min="0" step="0.01" value={income} onChange={e=>setIncome(e.target.value)} placeholder="Keep current income"/></label><label>Destination monthly rent<input type="number" min="0" step="0.01" value={rent} onChange={e=>setRent(e.target.value)} placeholder="Estimate from city index"/></label></details>
+      <button className="primary" disabled={loading}>{loading?'Calculating…':'Calculate move scenario'} <span>↗</span></button>
+    </form>
+    <aside className="panel assistant"><div className="assistant-icon">✳</div><p className="eyebrow">BUCK WATCH AI</p><h2>Ask a what-if</h2><p>Describe a move in plain language. Missing details will be clarified before a scenario is run.</p><textarea value={question} onChange={e=>setQuestion(e.target.value)} placeholder="What if I move from Atlanta to Chicago next month?" rows={4}/><button className="secondary" disabled={loading||!question.trim()} onClick={()=>void ask()}>{loading?'Working…':'Interpret question'}</button><small>AI is optional. The manual calculator works without an API key.</small></aside></section>
+    {(error||clarification)&&<div className={error?'notice error':'notice'} role="alert">{error||clarification}{error&&<button onClick={()=>retryAction.current()}>Retry</button>}</div>}
+    {results&&<section className="results"><div className="result-title"><div><p className="eyebrow">YOUR PROJECTION</p><h2>{results.originCity} <span>→</span> {results.destinationCity}</h2></div><button className="text-button" onClick={()=>setResults(null)}>Clear results</button></div>
+      <div className="metric-grid"><article><span>Monthly surplus change</span><strong className={results.monthlySurplusDifference<0?'negative':'positive'}>{money(results.monthlySurplusDifference)}</strong><small>After move: {money(results.scenarioMonthlySurplus)} / mo</small></article><article><span>Projected final balance</span><strong>{money(results.finalScenarioBalance)}</strong><small>Baseline: {money(results.finalBaselineBalance)}</small></article><article><span>Lowest scenario balance</span><strong className={results.lowestProjectedScenarioBalance<0?'negative':''}>{money(results.lowestProjectedScenarioBalance)}</strong><small>{results.firstNegativeMonth?`Below zero in ${results.firstNegativeMonth}`:'No negative month projected'}</small></article></div>
+      <div className="panel result-panel"><h3>Monthly budget comparison</h3><div className="comparison">{expenses.map(([name,value])=><div className="compare-row" key={name}><span>{name==='otherLocationSensitive'?'Other location-sensitive':name}</span><div><small>Current {money(results.currentExpenses[name]??0)}</small><strong>{money(value)}</strong></div><div className="bar"><i style={{width:`${Math.max(4,Math.min(100,value/Math.max(1,...expenses.map(([,v])=>v))*100))}%`}}/></div><small className="method">{results.methods[name]}</small></div>)}</div><h3>Balance by month</h3><div className="chart" role="img" aria-label="Baseline and scenario balances over time">{results.months.map(m=><div className="chart-column" key={m.month} title={`${m.month}: baseline ${money(m.baselineBalance)}, scenario ${money(m.scenarioBalance)}`}><div className="bars"><i className="baseline-bar" style={{height:`${Math.max(3,Math.abs(m.baselineBalance)/Math.max(1,...results.months.map(x=>Math.max(Math.abs(x.baselineBalance),Math.abs(x.scenarioBalance))))*100)}%`}}/><i className="scenario-bar" style={{height:`${Math.max(3,Math.abs(m.scenarioBalance)/Math.max(1,...results.months.map(x=>Math.max(Math.abs(x.baselineBalance),Math.abs(x.scenarioBalance))))*100)}%`}}/></div><small>{m.month.slice(5)}</small></div>)}</div><div className="legend"><span><i className="baseline-dot"/>Baseline</span><span><i className="scenario-dot"/>Move scenario</span></div>{explanation&&<div className="explanation"><h3>Scenario explanation</h3><p>{explanation}</p></div>}<div className="assumptions"><h3>Assumptions & estimates</h3><ul>{results.assumptions.map(x=><li key={x}>{x}</li>)}{results.warnings.map(x=><li key={x} className="warning-text">{x}</li>)}</ul></div></div></section>}
+    <footer>Cost estimates use city indices and may not reflect your personal expenses. No observation date is available for the dataset.</footer></main>
 }
-
 export default App

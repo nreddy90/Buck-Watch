@@ -22,6 +22,9 @@ spring:
     locations: classpath:db/migration
 
 buckwatch:
+  demo:
+    enabled: ${BUCKWATCH_DEMO_ENABLED:true}
+    current-city: ${DEMO_CURRENT_CITY:Atlanta, GA, United States}
   ml:
     base-url: ${ML_SERVICE_URL:http://localhost:8000}
 

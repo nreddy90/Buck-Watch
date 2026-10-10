@@ -1,251 +1,85 @@
 # Buck Watch
 
-## Cost-of-living reference data
+Buck Watch includes a React/Vite dashboard and Spring Boot moving-city scenario API. The original static prototype and Python ML service remain in the repository; this feature uses deterministic Java calculations and does not train or call an ML model.
 
-The first researched dataset contains HUD FY2027 one-bedroom gross housing
-benchmarks for Atlanta, New York City, San Francisco, Athens, Lancaster, and
-Gainesville. See [data/README.md](data/README.md) for CSV locations, source
-definitions, validation, and reproduction instructions. Other expense
-categories are still pending research.
+## Dataset
 
-Hackathon personal-finance website prototype. Plain HTML, CSS, and JavaScript; no dependencies or build step.
+The city index CSV is packaged at `backend/src/main/resources/data/Cost_of_living_index.csv`. Its repository copy is `data/Cost_of_living_index.csv`. The loader uses Apache Commons CSV to handle quoted names containing commas, loads once at startup, and rejects blank, duplicate, malformed, or non-positive numeric index records. If the dataset is missing, place the supplied file at `backend/src/main/resources/data/Cost_of_living_index.csv`.
 
-## Run locally
+The CSV has no observation-date column. Buck Watch does not infer one. Optional provenance can be supplied separately with `COST_INDEX_SOURCE` and `COST_INDEX_OBSERVATION_DATE`; these values describe metadata only and do not change estimates. Only full city identifiers from the file are canonical. Search matches case-insensitively; ambiguous city text returns choices. Scenario moves are limited to records identified as United States cities and USD budgets.
 
-Open `index.html` directly in your browser, or serve this folder:
+Rent, groceries, restaurant, and other location-sensitive expenses scale by their respective index ratios. Other location-sensitive expenses use Cost of Living Index as a rough fallback. Fixed expenses are unchanged. Cost of Living Plus Rent and Local Purchasing Power are not used. User destination rent overrides the estimate. Monthly buckets apply a move at the start of its selected month with no proration. The horizon is 1–24 months. City adjustments are estimates, assume unchanged household and spending behavior, and do not include inflation or investment growth.
 
-```sh
-python3 -m http.server 8080
-```
+## Profile and authentication
 
-Visit http://localhost:8080. If your repo already has an app, place this folder in a separate directory such as `buck-watch-demo/`; it is not a React component.
+There is no account persistence or authentication in this repository. The API therefore uses a clearly labeled local demo profile, enabled by `BUCKWATCH_DEMO_ENABLED=true`, with sample values and no arbitrary user ID parameter. Set the flag to `false` to disable demo profile access. Replace `BudgetService` with an authenticated account provider when account storage is implemented. The demo values are not user data.
 
-## Files
+## Configure and run
 
-- `index.html`: dashboard, transactions page, and build roadmap.
-- `styles.css`: responsive styling; optional Google Fonts with local fallbacks.
-- `app.js`: scenario calculations, SVG chart, navigation, presets, and demo assistant.
+Requirements: Java 21, Maven (or the included wrapper), Node.js and npm.
 
-## Current functionality
+From PowerShell at the repository root, configure environment values as needed, then start the backend:
 
-Starting balance $8,500; baseline income $5,200/month, rent $1,600/month, other expenses $1,800/month. Baseline ending balance is $30,100 after 12 months.
-
-Scenario ending balance = 8500 + 12 * (income - rent - otherExpenses) - oneTimeExpense.
-
-The one-time purchase occurs in month 1. Sliders update the chart and summary cards. Presets reset assumptions before applying a change. The demo assistant recognizes a rent increase or one-time purchase with a dollar amount; other queries get a generic summary. It is not an LLM.
-
-Sample transaction rows are illustrative and are not a complete expense ledger. No bank connections, authentication, persistence, real ML, or OpenAI calls are implemented. Values reset on reload. All amounts are USD.
-
-## Connect the real backend
-
-1. Build a Spring Boot API for transaction import, summaries, forecasts, scenarios, and chat.
-2. Replace local calculations with API calls. Keep accurate money calculations on the server using BigDecimal.
-3. Have Spring Boot call a Python forecasting service for variable spending predictions.
-4. Integrate the OpenAI Java SDK in Spring Boot for structured scenario interpretation and explanations of backend-computed results.
-5. Add loading/error states and validate all model outputs before applying them.
-6. Store API keys in server-side environment variables, never browser code.
-
-Suggested routes:
-
-- POST /api/transactions/import
-- GET /api/transactions
-- GET /api/summary
-- POST /api/forecast
-- POST /api/scenarios
-- POST /api/chat
-
-## Verification
-
-JavaScript syntax and arithmetic checks for baseline, increased rent, and a one-time purchase passed. Browser visual testing was unavailable; verify desktop and mobile layouts in your browser.
-
-## Buck Watch full-stack setup
-
-The repository keeps the original prototype as a design reference, but the active development setup is structured as follows:
-
-- Frontend: React + TypeScript + Vite
-- Backend: Java 21 + Spring Boot + Maven
-- ML service: Python + FastAPI
-- Database: PostgreSQL in TigerData (no Docker required)
-
-### Required tool versions
-
-- Java 21 LTS
-- Node.js 20 LTS or 22 LTS recommended
-- npm bundled with Node.js
-- Python 3.11+ recommended
-- TigerData PostgreSQL instance
-- Maven wrapper included in backend; no global Maven install required
-
-### Environment setup
-
-Copy the example file and then edit the values with your TigerData connection details:
-
-```bash
-cp .env.example .env
-```
-
-Spring Boot does not automatically load a root `.env` file in local development, so export the values before running the backend:
-
-```bash
-set -a
-source .env
-set +a
-```
-
-### TigerData configuration
-
-The backend reads the database connection from `DB_URL` first. If `DB_URL` is not set, it falls back to the local `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD` values.
-
-Important: TigerData often provides a `postgres://...` URL, but Spring Boot expects a JDBC URL with the `jdbc:postgresql://` prefix and credentials supplied as query parameters, not embedded in the hostname. The correct pattern is:
-
-For this setup-only milestone, Flyway is intentionally disabled in the backend config because TigerData is reporting PostgreSQL 18.6, while the current bundled Flyway version does not yet support that server version. This keeps the app bootable while the project remains scaffolded and ready for later DB migrations.
-
-```bash
-DB_URL='jdbc:postgresql://<your-tigerdata-host>:5432/buckwatch?user=<db_user>&password=<db_password>&sslmode=require'
-DB_USER=buckwatch
-DB_PASSWORD=<password>
-ML_SERVICE_URL=http://localhost:8000
-OPENAI_API_KEY=
-```
-
-### Backend startup
-
-```bash
+```powershell
+$env:BUCKWATCH_DEMO_ENABLED = 'true'
+$env:DEMO_CURRENT_CITY = 'Atlanta, GA, United States'
+$env:OPENAI_API_KEY = '' # optional; manual scenario works without it
+$env:OPENAI_MODEL = 'gpt-5.2'
 cd backend
-./mvnw clean compile
-./mvnw spring-boot:run
+mvn spring-boot:run
 ```
 
-Backend local URLs:
+In another terminal:
 
-- http://localhost:8080
-- http://localhost:8080/api/health
-
-Expected health payload:
-
-```json
-{"status":"ok","service":"buckwatch-backend"}
-```
-
-### ML service startup
-
-```bash
-cd ml-service
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-ML service local URLs:
-
-- http://localhost:8000
-- http://localhost:8000/health
-
-Expected health payload:
-
-```json
-{"status":"ok","service":"buckwatch-ml"}
-```
-
-### Frontend startup
-
-```bash
+```powershell
 cd frontend
 npm install
-npm run dev -- --host 0.0.0.0 --port 5173
+npm run dev
 ```
 
-Frontend local URL:
+The frontend is at http://localhost:5173 and proxies `/api` to http://localhost:8080. Maven is also available as `./mvnw spring-boot:run` on Unix or `./mvnw.cmd spring-boot:run` on Windows. A PostgreSQL server is not required by these endpoints; demo profile calls are in-memory.
 
-- http://localhost:5173
+OpenAI interpretation and explanation use the official OpenAI Java SDK Responses API. `OPENAI_API_KEY` and `OPENAI_MODEL` are read only by the server and must never be set in frontend variables. If the API key is missing, the question route responds with AI unavailable; manual calculation remains available. OpenAI-produced interpretation must pass Java validation before calculation. When explanation generation fails after calculation, deterministic numerical results are still returned with a template explanation.
 
-The frontend uses a Vite dev proxy for `/api` routes to the Spring Boot backend on port 8080. No authentication, charts, or financial features are implemented in this setup.
+## API
 
-### Environment variable checklist
+- `GET /api/cities?query=Chicago` — case-insensitive full-name matches.
+- `GET /api/profile` — explicitly marked local demo profile.
+- `POST /api/scenarios/move` — deterministic scenario; does not require OpenAI.
+- `POST /api/chat/scenario` — interprets a natural-language scenario using Structured Outputs when configured.
+- `GET /api/health` — service health.
 
-- DB_URL
-- DB_HOST
-- DB_PORT
-- DB_NAME
-- DB_USER
-- DB_PASSWORD
-- ML_SERVICE_URL
-- OPENAI_API_KEY
+Manual request:
 
-`OPENAI_API_KEY` is reserved for future server-side integration. It is optional during setup and should never be placed in frontend code.
-
-### Architecture
-
-```text
-Frontend (React + Vite on port 5173)
-    -> Spring Boot API (Java 21 on port 8080)
-    -> TigerData PostgreSQL
-    -> later calls FastAPI ML service (Python on port 8000)
-    -> later calls OpenAI (server-side only, optional)
+```json
+{
+  "destinationCity": "Chicago, IL, United States",
+  "moveMonth": "2026-11",
+  "horizonMonths": 12,
+  "currency": "USD",
+  "movingCosts": 2500,
+  "newMonthlyIncome": null,
+  "destinationRent": null
+}
 ```
 
-### Troubleshooting
+Send `movingCosts: 0` to confirm no moving costs. A null or missing value excludes them and is labeled in warnings; no cost is invented. Other amount overrides accept zero. Example natural-language request:
 
-Port already in use:
-
-```bash
-lsof -i :5173
-lsof -i :8080
-lsof -i :8000
+```json
+{"question":"What if I move from Atlanta to Chicago next month?"}
 ```
 
-Then stop the conflicting process or change the port.
+The chat endpoint asks for missing month, costs, or other required information before running a scenario. No shared global pending-chat state is used. Clients can pass the clarification answer in a follow-up question; state is not persisted across requests in this MVP.
 
-Database connection issues:
+Successful scenario responses contain `results` with category costs, surplus, monthly balances, final and lowest balances, estimate methods, assumptions, and warnings. Error responses have `{ "error": { "code", "message", "choices" } }`.
 
-```bash
-# confirm the values are loaded
-set -a
-source .env
-set +a
+## Checks
 
-echo "$DB_URL"
-```
+From the repository root, run:
 
-Check that the `.env` file exists and that `DB_URL` or the `DB_HOST`/`DB_PORT`/`DB_NAME` values match your TigerData database settings.
-
-### Verification status
-
-This environment supports the following toolchain checks:
-
-- Java 21
-- Node.js 25.4.0
-- npm 11.8.0
-- Python 3.14.2
-- TigerData PostgreSQL connection is configured via environment variables, no local Docker required
-
-The project setup has been created and the stack is ready to start with TigerData as the database backend.
-
-### Commands to run locally
-
-```bash
-cp .env.example .env
-
-# Update .env with your TigerData values before starting the backend
-set -a
-source .env
-set +a
-
+```powershell
 cd backend
-./mvnw clean compile
-./mvnw spring-boot:run
-
-cd ../ml-service
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-
+mvn test
 cd ../frontend
-npm install
-npm run dev -- --host 0.0.0.0 --port 5173
+npm run build
 ```
-
-This setup intentionally keeps the prototype HTML/CSS/JS files in place as design references and begins the Buck Watch stack without implementing financial features yet.
