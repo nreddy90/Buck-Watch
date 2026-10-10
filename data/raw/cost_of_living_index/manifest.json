@@ -1,0 +1,21 @@
+{
+  "source_file": "data/raw/cost_of_living_index/Cost_of_living_index.csv",
+  "source_sha256": "4c9d6e3906b2780ebf750aa8c2add60a7c30b9dff3160407f417bb574d7af4ba",
+  "provided_on": "2026-10-10",
+  "source_description": "User-provided CSV; attached dataset description attributes the indexes to Numbeo",
+  "download_page_url": "https://www.kaggle.com/datasets/debdutta/cost-of-living-index-by-country/data",
+  "source_period": null,
+  "license": null,
+  "metadata_notes": "The supplied file has no observation date or license field; Kaggle's page did not expose these to the research tool. Provided date is not the source observation date.",
+  "definitions_url": "https://www.numbeo.com/cost-of-living/cpi_explained.jsp",
+  "units": "Dimensionless index; New York City = 100; not USD",
+  "source_row_count": 536,
+  "processed_row_count": 536,
+  "country_label_count": 115,
+  "us_row_count": 110,
+  "scope": "Every city in the supplied CSV; no location or household filtering",
+  "normalization": "Preserve every numeric index; normalize headers; split location labels; retain source rank and label",
+  "outputs": {
+    "data/processed/city_costs.csv": "f69dc19be7530c790dc65400442b4917cf9eea0bdefc207f96d58969038cf85c"
+  }
+}
